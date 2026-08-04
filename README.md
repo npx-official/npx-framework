@@ -1,4 +1,4 @@
-```markdown
+
 # 🛡️ NPX Framework - Ultimate All-in-One Web Security Scanner
 
 > **Version:** v1.0 Ultimate | **Author:** NPX | **Website:** [https://npx-official.github.io/](https://npx-official.github.io/)
@@ -170,5 +170,4 @@ The authors (NPX) and the community are **not responsible** for any illegal use,
 Built with ❤️ by **NPX**. 
 For feedback, contributions, or bug reports, please open an issue on the GitHub repository or reach out via our official website: [https://npx-official.github.io/](https://npx-official.github.io/)
 ```
-
 
