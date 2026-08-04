@@ -1,7 +1,7 @@
 
 # 🛡️ NPX Framework - Ultimate All-in-One Web Security Scanner
 
-> **Version:** v1.0 Ultimate | **Author:** NPX | **Website:** [https://npx-official.github.io/](https://npx-official.github.io/)
+> **Version:** v1.0 Ultimate | **Author:** NPX | **Website:** [NIGHT PULSE X](https://npx-official.github.io/)
 
 NPX Framework is an advanced, modular, and extensible Python-based penetration testing framework built specifically for web application security assessments. Designed to simulate a real attacker, it integrates intelligence gathering, vulnerability scanning, exploitation, WAF bypass, and post-exploitation into a single cohesive CLI environment.
 
