@@ -1,9 +1,16 @@
-
 # 🛡️ NPX Framework - Ultimate All-in-One Web Security Scanner
 
 > **Version:** v1.0 Ultimate | **Author:** NPX | **Website:** [NIGHT PULSE X](https://npx-official.github.io/)
 
-NPX Framework is an advanced, modular, and extensible Python-based penetration testing framework built specifically for web application security assessments. Designed to simulate a real attacker, it integrates intelligence gathering, vulnerability scanning, exploitation, WAF bypass, and post-exploitation into a single cohesive CLI environment.
+> *[NPX Framework](https://github.com/npx-official/npx-framework) is an advanced, modular, and extensible Python-based penetration testing framework built specifically for web application security assessments. Designed to simulate a real attacker, it integrates intelligence gathering, vulnerability scanning, exploitation, WAF bypass, and post-exploitation into a single cohesive CLI environment.*
+
+---
+
+## ⚠️ **Disclaimer**
+
+**This tool is intended for educational purposes, authorized security assessments, and penetration testing only.** The authors (NPX) and the community are **not responsible** for any illegal use, damage, or unauthorized access caused by this software. Always ensure you have explicit written permission from the target system owner before scanning.
+
+**🚨 The tools are not complete yet, do not try them on real sites.**
 
 ---
 
@@ -158,16 +165,8 @@ The framework will save a file named `npx_scan_report.html` in your current dire
 
 ---
 
-## ⚠️ Disclaimer
-
-**This tool is intended for educational purposes, authorized security assessments, and penetration testing only.** 
-The authors (NPX) and the community are **not responsible** for any illegal use, damage, or unauthorized access caused by this software. Always ensure you have explicit written permission from the target system owner before scanning.
-
----
-
 ## 🏆 Credits & Contributions
 
 Built with ❤️ by **NPX**. 
-For feedback, contributions, or bug reports, please open an issue on the GitHub repository or reach out via our official website: [https://npx-official.github.io/](https://npx-official.github.io/)
+For feedback, contributions, or bug reports, please open an issue on the GitHub repository or reach out via our official website: [NIGHT PULSE X](https://npx-official.github.io/)
 ```
-
