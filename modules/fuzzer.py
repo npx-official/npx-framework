@@ -2,6 +2,7 @@
 import subprocess
 import os
 import json
+from datetime import datetime
 from core.colors import Colors
 from utils.helpers import urljoin
 
@@ -12,13 +13,8 @@ class NPXFuzzerModule:
         self.found_paths = []
 
     def get_wordlist(self, wordlist_type="common"):
-        """
-        إرجاع مسار قائمة كلمات حسب النوع من المجلد المركزي
-        الأنواع: common, directories, passwords, fuzzing
-        """
         central_dir = "/usr/share/wordlists/central"
         
-        # تعريف القوائم حسب النوع
         wordlists_map = {
             "common": [
                 f"{central_dir}/common.txt",
@@ -50,15 +46,12 @@ class NPXFuzzerModule:
             ]
         }
         
-        # الحصول على قائمة المسارات المطلوبة
         paths = wordlists_map.get(wordlist_type, wordlists_map["common"])
         
-        # البحث عن أول مسار موجود
         for path in paths:
             if os.path.exists(path):
                 return path
         
-        # إذا لم يتم العثور على أي قائمة، إنشاء قائمة مؤقتة
         temp_list = "/tmp/npx_wordlist.txt"
         if not os.path.exists(temp_list):
             with open(temp_list, "w") as f:
@@ -73,25 +66,29 @@ class NPXFuzzerModule:
         return temp_list
 
     def run_ffuf(self, target, wordlist_type="common"):
-        """تشغيل FFUF لاكتشاف الدلائل والملفات"""
         base = target.rstrip("/")
         print(f"{Colors.OKCYAN}[*] Running FFUF on {base}...{Colors.ENDC}")
         
         wordlist = self.get_wordlist(wordlist_type)
-        output_file = "ffuf_output.json"
+        
+        output_dir = "scan_results/ffuf"
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = os.path.join(output_dir, f"ffuf_{base.replace('/', '_')}_{timestamp}.json")
         
         try:
             cmd = [
                 "ffuf", "-u", f"{base}/FUZZ",
                 "-w", wordlist,
-                "-fc", "404,403",
+                "-fc", "404,403,400",
                 "-o", output_file,
                 "-of", "json",
-                "-s"
+                "-s",
+                "-t", "50",
+                "-ac",
             ]
-            subprocess.run(cmd, check=True, timeout=60)
+            subprocess.run(cmd, check=True, timeout=120)
             
-            # تحليل النتائج
             if os.path.exists(output_file):
                 with open(output_file, "r") as f:
                     data = json.load(f)
@@ -102,7 +99,7 @@ class NPXFuzzerModule:
                             self.found_paths.append({"url": path, "status": status})
                             color = Colors.OKGREEN if status == 200 else Colors.WARNING
                             print(f"  {color}[{status}] {path}{Colors.ENDC}")
-                os.remove(output_file)
+                print(f"{Colors.DIM}[+] FFUF results saved to: {output_file}{Colors.ENDC}")
             return True
             
         except FileNotFoundError:
@@ -116,11 +113,9 @@ class NPXFuzzerModule:
             return False
 
     def run_internal_fuzzer(self, target_urls, wordlist_type="common"):
-        """الطريقة الداخلية لتكسير المسارات (بدون FFUF)"""
         print(f"{Colors.DIM}[*] Using internal directory bruteforce...{Colors.ENDC}")
         wordlist = self.get_wordlist(wordlist_type)
         
-        # قراءة القائمة
         try:
             with open(wordlist, "r", encoding="utf-8", errors="ignore") as f:
                 paths = [line.strip() for line in f if line.strip()]
@@ -148,11 +143,9 @@ class NPXFuzzerModule:
                     pass
 
     def run(self, target_urls, wordlist_type="common"):
-        """تشغيل الفازر: يستخدم FFUF على الهدف الأول، ثم يمر على الباقي داخلياً"""
         if not target_urls:
             return []
         
-        # استخدم الهدف الأول كقاعدة لتشغيل FFUF
         main_target = list(target_urls)[0] if target_urls else ""
         if main_target:
             success = self.run_ffuf(main_target, wordlist_type)

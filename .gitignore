@@ -1,21 +1,31 @@
-__pycache__/
+# مجلد النتائج
+scan_results/
+
+# ملفات Python المؤقتة
 *.pyc
-*.pyo
-*.pyd
-*.db-journal
-npx_scan_history.db
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.db-journal
-*.sqlite3
-npx_scan_history.db
-ffuf_output.json
-amass_output.json
-nuclei_results.json
-npx_report.html
-npx_scan_report.html
 *.log
 *.tmp
+*.json
+
+# ملفات البيئة
+.env
+venv/
+env/
+.venv/
+
+# ملفات IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ملفات النظام
+.DS_Store
+Thumbs.db
+
+# ملفات التقرير المؤقتة
+*.html
+*.pdf
+*.csv
