@@ -1,5 +1,7 @@
+# cli.py
 import os
 import sys
+import urllib.parse
 from core.colors import Colors
 from core.config import NPXConfig
 from core.session import NPXSessionManager
@@ -45,6 +47,7 @@ class NPXCLIUltimate:
             'postexploit': self.cmd_postexploit,
             'ssrf': self.cmd_ssrf,
             'xxe': self.cmd_xxe,
+            'lfi': self.cmd_lfi,
             'schedule': self.cmd_schedule,
             'history': self.cmd_history,
             'xss_exploit': self.cmd_xss_exploit,
@@ -99,7 +102,7 @@ class NPXCLIUltimate:
         self.framework.recon.crawl_sitemap()
         internal_urls = self.framework.recon.discovered_urls['internal']
         if not internal_urls:
-            internal_urls.add(target)  # على الأقل الصفحة الرئيسية
+            internal_urls.add(target)
 
         # Modules
         fuzzer = NPXFuzzerModule(self.framework)
@@ -121,24 +124,29 @@ class NPXCLIUltimate:
         wp.run(target)
 
         sub = NPXSubdomainTakeover(self.framework)
-        sub.run(self.framework.recon.subdomains)
+        domain = urllib.parse.urlparse(target).netloc
+        sub.run(domain)
 
         cred = NPXCredentialHarvester(self.framework)
         cred.run(internal_urls)
 
-        # تخزين النتائج
         self.framework.vulnerabilities = sqli.vulnerabilities + xss.vulnerabilities + lfi.vulnerabilities
         self.framework.exploits = exploit.exploited
 
-        # حفظ في قاعدة البيانات
         modules_used = ['Fuzzer', 'SQLi', 'XSS', 'LFI', 'Exploit', 'Wordpress', 'Subdomain', 'Credentials']
         self.framework.storage.save_scan(target, modules_used, len(self.framework.vulnerabilities), self.framework.vulnerabilities)
 
-        # اقتراحات
         helper = NPXSmartHelper(self.framework)
         helper.run(self.framework.vulnerabilities)
 
         print(f"{Colors.OKGREEN}[+] Scan completed! Use 'report' to generate HTML/PDF report.{Colors.ENDC}")
+
+    def cmd_lfi(self, args):
+        if not hasattr(self.framework, 'vulnerabilities'):
+            print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
+            return
+        lfi = NPXLFIModule(self.framework)
+        lfi.run(self.framework.recon.discovered_urls['internal'])
 
     def cmd_help(self, args):
         help_text = f"""
@@ -154,6 +162,7 @@ class NPXCLIUltimate:
   {Colors.WARNING}postexploit{Colors.ENDC}   Post-exploit
   {Colors.WARNING}ssrf{Colors.ENDC}          SSRF scan
   {Colors.WARNING}xxe{Colors.ENDC}           XXE scan
+  {Colors.WARNING}lfi{Colors.ENDC}           LFI scan
   {Colors.WARNING}schedule{Colors.ENDC}      Manage scheduled scans
   {Colors.WARNING}history{Colors.ENDC}       View scan history
   {Colors.WARNING}xss_exploit{Colors.ENDC}   Inject XSS payloads
