@@ -2,33 +2,48 @@
 import subprocess
 import json
 import re
+import socket
 from core.colors import Colors
 
 class NPXSubdomainTakeover:
     def __init__(self, framework):
         self.framework = framework
         self.session = framework.session_manager
+        self.subdomains = set()
+
+    def run_dig(self, target):
+        """محاولة استخراج النطاقات الفرعية عبر DIG"""
+        try:
+            result = subprocess.run(["dig", target, "ANY"], capture_output=True, text=True, timeout=10)
+            if result.stdout:
+                ips = re.findall(r'[\d.]+', result.stdout)
+                for ip in ips:
+                    if ip.count('.') == 3 and ip != '127.0.0.1':
+                        try:
+                            name = socket.gethostbyaddr(ip)[0]
+                            if target in name:
+                                self.subdomains.add(name.split('.')[0] + '.' + target)
+                        except:
+                            pass
+        except:
+            pass
 
     def run_amass(self, target):
         """تشغيل Amass لاكتشاف النطاقات الفرعية"""
         print(f"{Colors.OKCYAN}[*] Running Amass on {target}...{Colors.ENDC}")
         try:
-            # تشغيل Amass في الوضع السلبي (سريع)
             cmd = ["amass", "enum", "-passive", "-d", target, "-json", "amass_output.json"]
             subprocess.run(cmd, check=True, timeout=120)
-            
-            # قراءة النتائج
-            subdomains = set()
             with open("amass_output.json", "r") as f:
                 for line in f:
                     try:
                         data = json.loads(line)
                         if "name" in data:
-                            subdomains.add(data["name"])
+                            self.subdomains.add(data["name"])
                     except:
                         pass
-            print(f"{Colors.OKGREEN}[+] Amass found {len(subdomains)} subdomains.{Colors.ENDC}")
-            return subdomains
+            print(f"{Colors.OKGREEN}[+] Amass found {len(self.subdomains)} subdomains.{Colors.ENDC}")
+            return self.subdomains
         except FileNotFoundError:
             print(f"{Colors.WARNING}[!] Amass not installed. Falling back to internal scanner.{Colors.ENDC}")
             return set()
@@ -37,19 +52,10 @@ class NPXSubdomainTakeover:
             return set()
 
     def run(self, target_domain):
-        """تشغيل ماسح النطاقات الفرعية"""
         if not target_domain:
             print(f"{Colors.FAIL}[!] No domain provided for subdomain scan.{Colors.ENDC}")
             return []
-        
-        # محاولة استخدام Amass أولاً
         subdomains = self.run_amass(target_domain)
-        
-        # إذا لم يعمل Amass، استخدم الطريقة الداخلية (من Recon)
         if not subdomains:
-            print(f"{Colors.DIM}[*] Using internal subdomain discovery...{Colors.ENDC}")
-            # هنا يمكنك استدعاء الدوال الداخلية من Recon
-            # مثلاً: self.framework.recon.discover_subdomains(...)
-            # لكننا سنتركها فارغة حالياً.
-        
-        return list(subdomains)
+            self.run_dig(target_domain)
+        return list(self.subdomains)
