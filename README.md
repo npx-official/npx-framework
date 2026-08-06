@@ -27,9 +27,8 @@
   <b>Version:</b> v1.0 Ultimate &nbsp;|&nbsp; <b>Author:</b> NPX &nbsp;|&nbsp; <b>Website:</b> <a href="https://npx-official.github.io">NIGHT PULSE X</a>
 </p>
 
+
 ---
-
-
 
 ## ⚠️ **Disclaimer**
 
@@ -52,6 +51,7 @@ NPX Framework combines the power of multiple well-known open-source techniques i
 
 ### ⚡ Directory & File Bruteforce
 - High-speed fuzzing with FFUF integration
+- **Enhanced internal fallback fuzzer** with extended wordlist (50+ paths)
 - Discover hidden admin panels, backup files
 - Configuration leaks (`.env`, `.git`, `.htaccess`)
 
@@ -67,15 +67,15 @@ NPX Framework combines the power of multiple well-known open-source techniques i
 - **Modern Web Scanning:** GraphQL introspection and WebSocket evaluation
 
 ### 🤖 Automated Exploitation
-- **Post-Exploit Module:** Automatically dumps database tables via SQLi
+- **Post-Exploit Module:** Automatically dumps database tables via SQLi and reads sensitive files via LFI
 - **Exploit Chain Builder:** Links multiple vulnerabilities (e.g., LFI → Log Poisoning → RCE)
 
 ### 🔑 Credential Harvesting & Hashcat
 - Scrapes pages for API keys, JWTs, and passwords using regex patterns
-- Integrates with `hashcat` to automatically crack discovered hashes
+- **Fully integrated with `hashcat`** to automatically crack discovered hashes
 
 ### ⚙️ Infrastructure & Automation
-- **REST API:** Exposes an API endpoint (`/api/v1/scan`) to run scans remotely
+- **Fully functional REST API:** Exposes endpoints (`/api/v1/scan` and `/api/v1/scan/status/<id>`) to run scans remotely
 - **Scheduler Engine:** Schedule automated scans via the CLI (`schedule add`)
 - **SQLite Storage:** Saves all scan history locally in a database
 
@@ -89,7 +89,7 @@ NPX Framework combines the power of multiple well-known open-source techniques i
 
 ### Required Python Libraries
 ```bash
-pip install requests beautifulsoup4 lxml dnspython pyjwt graphql-core
+pip install requests beautifulsoup4 lxml dnspython pyjwt graphql-core flask
 ```
 
 ### External System Tools (Optional but recommended)
@@ -139,7 +139,9 @@ Once launched, you will be greeted with the interactive NPX CLI. Type `help` to 
 | `ssrf` | Executes the SSRF scanner |
 | `xxe` | Executes the XXE scanner |
 | `lfi` | Executes the LFI scanner |
-| `postexploit` | Runs the post-exploitation module |
+| `postexploit` | Runs the post-exploitation module (data extraction) |
+| `xss_exploit` | Injects active XSS payloads |
+| `hashcat` | Cracks discovered hashes using hashcat |
 | `api` | Starts a Flask-based REST API server on port `8080` |
 | `cloud <domain>` | Scans cloud resources (AWS S3, Azure, GCP) |
 | `dns <domain>` | DNS reconnaissance (zone transfer, subdomains) |
@@ -147,6 +149,7 @@ Once launched, you will be greeted with the interactive NPX CLI. Type `help` to 
 | `jwt <token>` | JWT decoder and analyzer |
 | `schedule add <url> <seconds>` | Schedules an automated scan |
 | `schedule list` | Displays all scheduled jobs |
+| `schedule stop <id>` | Stops a scheduled job |
 | `history` | Displays scan history from SQLite database |
 | `info` | Displays current configuration |
 | `clear` | Clears the terminal screen |
@@ -202,26 +205,25 @@ The framework will save files in `scan_results/reports/`:
 
 ---
 
-## 🏆 **Featured Writeups & Projects**
+## 📡 **REST API Usage**
 
-### 🔥 From NIGHT PULSE X
+Start the REST API server:
 
-| Project | Description |
-| :--- | :--- |
-| **Mythical** | 🏆 HTB ProLabs |
-| **Puppet** | 🏆 HTB ProLabs |
-| **DarkZero Returns** | HTB Windows Hard |
-| **Fries** | HTB Windows Hard |
-| **Garfield** | HTB Windows Hard |
-| **Ghostlink** | HTB Windows Hard |
-| **H1 2022 CTF** | 🛡️ Hacker101 CTF |
-| **Nimbus** | 🐧 HTB Linux Hard |
-| **Odyssey** | 💀 HTB Windows Insane |
+```bash
+npx> api
+```
 
-### 📂 Featured Projects
-- **Linux Machines:** 18+ Writeups
-- **Windows Machines:** 2 Writeups
-- **ProLabs:** 1 Writeup
+### Example API Request:
+```bash
+curl -X POST http://localhost:8080/api/v1/scan \
+  -H "Content-Type: application/json" \
+  -d '{"target":"http://testphp.vulnweb.com"}'
+```
+
+### Check Scan Status:
+```bash
+curl http://localhost:8080/api/v1/scan/status/<scan_id>
+```
 
 ---
 
@@ -334,5 +336,3 @@ Built with ❤️ by **NPX**
     <img src="https://img.shields.io/badge/🌐%20NIGHT%20PULSE%20X-Visit%20Our%20Website-0a0a0a?style=for-the-badge&logo=github&logoColor=white&color=0a0a0a" alt="Website"/>
   </a>
 </p>
-```
-
