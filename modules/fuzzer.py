@@ -2,6 +2,7 @@
 import subprocess
 import os
 import json
+import shlex
 from datetime import datetime
 from core.colors import Colors
 from utils.helpers import urljoin
@@ -61,7 +62,12 @@ class NPXFuzzerModule:
                     "uploads", "files", "downloads", "images", "assets", "css", "js", "img",
                     ".env", ".git/config", "config.php", "wp-config.php", ".htaccess",
                     "robots.txt", "sitemap.xml", "index.php", "index.html", "readme.md",
-                    "CHANGELOG.md", "LICENSE", "composer.json", "package.json"
+                    "CHANGELOG.md", "LICENSE", "composer.json", "package.json",
+                    # إضافة المزيد من المسارات الشائعة
+                    "backup", "temp", "tmp", "logs", "cache", "storage", "private",
+                    "includes", "modules", "themes", "plugins", "vendor", "node_modules",
+                    "src", "dist", "build", "public", "assets", "js", "css", "images",
+                    "fonts", "uploads", "downloads", "media", "static", "content"
                 ]))
         return temp_list
 
@@ -71,17 +77,23 @@ class NPXFuzzerModule:
         
         wordlist = self.get_wordlist(wordlist_type)
         
+        # ✅ Fix: إصلاح Command Injection باستخدام shlex.quote()
+        target_quoted = shlex.quote(base)
+        wordlist_quoted = shlex.quote(wordlist)
+        
         output_dir = "scan_results/ffuf"
         os.makedirs(output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = os.path.join(output_dir, f"ffuf_{base.replace('/', '_')}_{timestamp}.json")
+        output_file_quoted = shlex.quote(output_file)
         
         try:
+            # ✅ Fix: استخدام shlex.quote() على جميع المدخلات
             cmd = [
-                "ffuf", "-u", f"{base}/FUZZ",
-                "-w", wordlist,
+                "ffuf", "-u", f"{target_quoted}/FUZZ",
+                "-w", wordlist_quoted,
                 "-fc", "404,403,400",
-                "-o", output_file,
+                "-o", output_file_quoted,
                 "-of", "json",
                 "-s",
                 "-t", "50",
@@ -113,20 +125,33 @@ class NPXFuzzerModule:
             return False
 
     def run_internal_fuzzer(self, target_urls, wordlist_type="common"):
-        print(f"{Colors.DIM}[*] Using internal directory bruteforce...{Colors.ENDC}")
+        print(f"{Colors.DIM}[*] Using enhanced internal directory bruteforce...{Colors.ENDC}")
+        
+        # ✅ Fix: تحميل قائمة كبيرة من المسارات
         wordlist = self.get_wordlist(wordlist_type)
         
+        paths = []
         try:
             with open(wordlist, "r", encoding="utf-8", errors="ignore") as f:
                 paths = [line.strip() for line in f if line.strip()]
         except:
+            # قائمة افتراضية موسعة
             paths = [
                 "admin", "login", "dashboard", "api", "v1", "v2", "backup", "wp-admin",
                 "administrator", "panel", "cpanel", "webmail", "mail", "test", "dev",
                 "uploads", "files", "downloads", "images", "assets", "css", "js", "img",
                 ".env", ".git/config", "config.php", "wp-config.php", ".htaccess",
-                "robots.txt", "sitemap.xml", "index.php", "index.html", "readme.md"
+                "robots.txt", "sitemap.xml", "index.php", "index.html", "readme.md",
+                "CHANGELOG.md", "LICENSE", "composer.json", "package.json",
+                "backup", "temp", "tmp", "logs", "cache", "storage", "private",
+                "includes", "modules", "themes", "plugins", "vendor", "node_modules",
+                "src", "dist", "build", "public", "assets", "js", "css", "images",
+                "fonts", "uploads", "downloads", "media", "static", "content",
+                ".aws", ".ssh", "config", "settings", "conf", "cfg", "ini", "xml", "json",
+                "csv", "xls", "xlsx", "doc", "docx", "pdf", "zip", "tar.gz", "sql"
             ]
+        
+        print(f"{Colors.DIM}[*] Testing {len(paths)} paths...{Colors.ENDC}")
         
         for url in target_urls:
             for path in paths:

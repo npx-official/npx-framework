@@ -1,4 +1,7 @@
-# cli.py
+#!/usr/bin/env python3
+# cli.py - NPX Framework Command Line Interface
+# Version: 1.0 Ultimate (Fully Corrected)
+
 import os
 import sys
 import urllib.parse
@@ -74,6 +77,7 @@ class NPXCLIUltimate:
             'graphql': self.cmd_graphql,
             'dns': self.cmd_dns,
             'jwt': self.cmd_jwt,
+            'hashcat': self.cmd_hashcat,  # تمت إضافته
         }
         
         self.history_file = os.path.expanduser("~/.npx_history")
@@ -131,6 +135,7 @@ class NPXCLIUltimate:
                 print(f"{Colors.FAIL}[!] Error: {e}{Colors.ENDC}")
 
     def cmd_scan(self, args):
+        """تنفيذ فحص كامل للهدف"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: scan <target_url> [--fast]{Colors.ENDC}")
             return
@@ -153,6 +158,7 @@ class NPXCLIUltimate:
             internal_urls.add(target)
         
         if fast_mode:
+            # وضع سريع: فقط الوحدات الأساسية
             fuzzer = NPXFuzzerModule(self.framework)
             fuzzer.run(internal_urls, wordlist_type="common")
             
@@ -171,6 +177,7 @@ class NPXCLIUltimate:
             modules_used = ['Fuzzer', 'SQLi', 'XSS', 'LFI']
             
         else:
+            # وضع كامل: تشغيل جميع الوحدات
             fuzzer = NPXFuzzerModule(self.framework)
             fuzzer.run(internal_urls)
             
@@ -217,6 +224,7 @@ class NPXCLIUltimate:
         print(f"{Colors.OKGREEN}[+] Use 'report' to generate HTML/PDF report.{Colors.ENDC}")
 
     def cmd_lfi(self, args):
+        """تشغيل فحص LFI"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -224,18 +232,19 @@ class NPXCLIUltimate:
         lfi.run(self.framework.recon.discovered_urls['internal'])
 
     def cmd_help(self, args):
+        """عرض المساعدة"""
         help_text = f"""
 {Colors.OKCYAN}Commands:{Colors.ENDC}
   {Colors.WARNING}help{Colors.ENDC}          Show this help
   {Colors.WARNING}scan <url>{Colors.ENDC}    Full scan
   {Colors.WARNING}scan <url> --fast{Colors.ENDC} Fast scan (fuzzer, SQLi, XSS, LFI only)
   {Colors.WARNING}modules{Colors.ENDC}       List modules
-  {Colors.WARNING}report{Colors.ENDC}        Generate report (HTML+PDF)
+  {Colors.WARNING}report{Colors.ENDC}        Generate report (HTML+JSON)
   {Colors.WARNING}nuclei <url>{Colors.ENDC}  Run Nuclei
   {Colors.WARNING}bypass{Colors.ENDC}        WAF bypass
   {Colors.WARNING}chain{Colors.ENDC}         Build exploit chain
   {Colors.WARNING}api{Colors.ENDC}           Start REST API
-  {Colors.WARNING}postexploit{Colors.ENDC}   Post-exploit
+  {Colors.WARNING}postexploit{Colors.ENDC}   Post-exploit (extract data)
   {Colors.WARNING}ssrf{Colors.ENDC}          SSRF scan
   {Colors.WARNING}xxe{Colors.ENDC}           XXE scan
   {Colors.WARNING}lfi{Colors.ENDC}           LFI scan
@@ -252,17 +261,21 @@ class NPXCLIUltimate:
   {Colors.WARNING}graphql <url>{Colors.ENDC}     GraphQL introspection
   {Colors.WARNING}dns <domain>{Colors.ENDC}      DNS reconnaissance (zone transfer, subdomains)
   {Colors.WARNING}jwt <token>{Colors.ENDC}       JWT decoder and analyzer
+  {Colors.WARNING}hashcat{Colors.ENDC}           Crack found hashes with hashcat
 """
         print(help_text)
 
     def cmd_modules(self, args):
+        """عرض جميع الوحدات المتاحة"""
         print(f"{Colors.OKCYAN}Available Modules:{Colors.ENDC}")
         print("  - Fuzzer, SQLi, XSS, LFI, Exploit, WAF Bypass, Credentials, Hashcat")
         print("  - Chain, Nuclei, API, Post-Exploit, SSRF, XXE, Modern (GraphQL)")
         print("  - Scheduler, Storage, XSS Exploit, Auto-Updater, Smart Helper, Advanced Report")
         print(f"{Colors.OKGREEN}  - NEW: Cloud Enumeration, DNS Recon, JWT Tools, GraphQL Enum{Colors.ENDC}")
+        print(f"\n{Colors.DIM}Use 'help' for command details.{Colors.ENDC}")
 
     def cmd_report(self, args):
+        """توليد تقرير HTML و JSON"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] No scan results. Run 'scan' first.{Colors.ENDC}")
             return
@@ -270,6 +283,7 @@ class NPXCLIUltimate:
         adv.run(self.framework.vulnerabilities, self.framework.exploits)
 
     def cmd_nuclei(self, args):
+        """تشغيل Nuclei للكشف عن CVEs"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: nuclei <url>{Colors.ENDC}")
             return
@@ -278,6 +292,7 @@ class NPXCLIUltimate:
         nuclei.run(args[0])
 
     def cmd_bypass(self, args):
+        """تشغيل محرك تجاوز WAF"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -285,10 +300,12 @@ class NPXCLIUltimate:
         waf.run(self.framework.recon.discovered_urls['internal'], self.framework.vulnerabilities)
 
     def cmd_api(self, args):
+        """تشغيل خادم REST API"""
         api = NPXRESTAPI(self.framework)
         api.start()
 
     def cmd_chain(self, args):
+        """بناء سلسلة استغلال"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -296,6 +313,7 @@ class NPXCLIUltimate:
         chain.run(self.framework.vulnerabilities)
 
     def cmd_postexploit(self, args):
+        """تشغيل وحدة ما بعد الاستغلال"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -303,6 +321,7 @@ class NPXCLIUltimate:
         pe.run(self.framework.vulnerabilities)
 
     def cmd_ssrf(self, args):
+        """تشغيل فحص SSRF"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -310,6 +329,7 @@ class NPXCLIUltimate:
         ssrf.run(self.framework.recon.discovered_urls['internal'])
 
     def cmd_xxe(self, args):
+        """تشغيل فحص XXE"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -317,8 +337,11 @@ class NPXCLIUltimate:
         xxe.run(self.framework.recon.discovered_urls['internal'])
 
     def cmd_schedule(self, args):
+        """إدارة الجدولة التلقائية"""
         if len(args) < 2:
             print(f"{Colors.FAIL}[!] Usage: schedule add <target> <seconds>{Colors.ENDC}")
+            print(f"{Colors.DIM}       schedule list{Colors.ENDC}")
+            print(f"{Colors.DIM}       schedule stop <id>{Colors.ENDC}")
             return
         if args[0] == 'add':
             target = args[1]
@@ -328,12 +351,18 @@ class NPXCLIUltimate:
             self.framework.scheduler.list_jobs()
         elif args[0] == 'stop':
             if len(args) > 1:
-                self.framework.scheduler.stop_job(int(args[1])-1)
+                try:
+                    job_id = int(args[1])
+                    self.framework.scheduler.stop_job(job_id - 1)
+                except ValueError:
+                    print(f"{Colors.FAIL}[!] Invalid job ID.{Colors.ENDC}")
 
     def cmd_history(self, args):
+        """عرض تاريخ الفحوصات"""
         self.framework.storage.get_history()
 
     def cmd_xss_exploit(self, args):
+        """استغلال ثغرات XSS"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -345,10 +374,12 @@ class NPXCLIUltimate:
             print(f"{Colors.DIM}[-] No XSS vulnerabilities found.{Colors.ENDC}")
 
     def cmd_update(self, args):
+        """التحقق من التحديثات"""
         updater = NPXAutoUpdater(self.framework)
         updater.run()
 
     def cmd_suggest(self, args):
+        """اقتراحات ذكية"""
         if not hasattr(self.framework, 'vulnerabilities'):
             print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
             return
@@ -356,21 +387,29 @@ class NPXCLIUltimate:
         helper.run(self.framework.vulnerabilities)
 
     def cmd_info(self, args):
+        """عرض معلومات التكوين"""
         print(f"{Colors.OKCYAN}NPX Framework v1.0 Ultimate{Colors.ENDC}")
         print(f"  Target: {self.framework.config.target_url or 'Not set'}")
         print(f"  Threads: {self.framework.config.threads}")
         print(f"  DB: scan_results/npx_scan_history.db")
+        print(f"  Output Dir: {self.framework.config.output_dir}")
+        print(f"  Timeout: {self.framework.config.timeout}s")
+        print(f"  Follow Redirects: {self.framework.config.follow_redirects}")
+        print(f"  Verify SSL: {self.framework.config.verify_ssl}")
 
     def cmd_exit(self, args):
+        """الخروج من البرنامج"""
         print(f"{Colors.DIM}Goodbye!{Colors.ENDC}")
         sys.exit(0)
 
     def cmd_clear(self, args):
+        """مسح الشاشة"""
         os.system('clear' if os.name == 'posix' else 'cls')
 
     # ============= الأوامر الجديدة =============
 
     def cmd_cloud(self, args):
+        """فحص الموارد السحابية"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: cloud <domain>{Colors.ENDC}")
             return
@@ -410,6 +449,7 @@ class NPXCLIUltimate:
             print(f"{Colors.FAIL}[!] Error: {e}{Colors.ENDC}")
 
     def cmd_graphql(self, args):
+        """فحص GraphQL Introspection"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: graphql <url>{Colors.ENDC}")
             return
@@ -444,6 +484,7 @@ class NPXCLIUltimate:
             print(f"{Colors.FAIL}[!] Error: {e}{Colors.ENDC}")
 
     def cmd_dns(self, args):
+        """إعادة اكتشاف DNS"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: dns <domain>{Colors.ENDC}")
             return
@@ -479,6 +520,7 @@ class NPXCLIUltimate:
             print(f"{Colors.FAIL}[!] Error: {e}{Colors.ENDC}")
 
     def cmd_jwt(self, args):
+        """تحليل JWT Token"""
         if not args:
             print(f"{Colors.FAIL}[!] Usage: jwt <token>{Colors.ENDC}")
             return
@@ -515,3 +557,16 @@ class NPXCLIUltimate:
             print(f"{Colors.DIM}Install: pip install pyjwt{Colors.ENDC}")
         except Exception as e:
             print(f"{Colors.FAIL}[!] Error: {e}{Colors.ENDC}")
+
+    def cmd_hashcat(self, args):
+        """تشغيل Hashcat لكسر الهاشات المستخرجة"""
+        if not hasattr(self.framework, 'vulnerabilities'):
+            print(f"{Colors.FAIL}[!] Run 'scan' first.{Colors.ENDC}")
+            return
+        hashcat = NPXHashcatIntegration(self.framework)
+        hashcat.run(self.framework.vulnerabilities)
+
+# تصدير الفئة للاستخدام الخارجي
+if __name__ == "__main__":
+    # هذا الجزء ليس ضرورياً لأن الفئة تستخدم داخل الإطار
+    pass
