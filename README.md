@@ -1,13 +1,13 @@
-<div align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=6FFFE0&center=true&vCenter=true&width=500&lines=Offensive+Security+Enthusiast;CTF+Player;Bug+Bounty+Hunter;OSCP+In+Progress;NPX+Framework+Developer" alt="Typing SVG" />
-</div>
+
 
 <h1 align="center">🛡️ NPX Framework</h1>
 <p align="center">
   <strong>Ultimate All-in-One Web Security Scanner</strong><br>
   <em>Penetration Testing • Security Research • Future Ready</em>
 </p>
-
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=6FFFE0&center=true&vCenter=true&width=500&lines=NPX+Framework+v1.0+Ultimate;All-in-One+Web+Security+Scanner;Penetration+Testing+Tool;Automated+Vulnerability+Detection;Open-Source+Security+Project" alt="Typing SVG" />
+</div>
 <p align="center">
   <a href="https://npx-official.github.io">
     <img src="https://img.shields.io/badge/Website-NIGHT%20PULSE%20X-0a0a0a?style=for-the-badge&logo=github&logoColor=white&color=0a0a0a" alt="Website"/>
