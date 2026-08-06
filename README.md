@@ -29,32 +29,7 @@
 
 ---
 
-## 📊 **Project Statistics**
 
-<p align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <h3>📝 31+</h3>
-        <p>Writeups</p>
-      </td>
-      <td align="center">
-        <h3>🏆 3</h3>
-        <p>Months Active</p>
-      </td>
-      <td align="center">
-        <h3>⚡ 13</h3>
-        <p>Commits</p>
-      </td>
-      <td align="center">
-        <h3>🛡️ 20+</h3>
-        <p>Modules</p>
-      </td>
-    </tr>
-  </table>
-</p>
-
----
 
 ## ⚠️ **Disclaimer**
 
