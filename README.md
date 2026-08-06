@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="https://npx-official.github.io/assets/logo.png" alt="NPX Framework" width="200"/>
-</p>
+<div align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=24&duration=3000&pause=1000&color=6FFFE0&center=true&vCenter=true&width=500&lines=Offensive+Security+Enthusiast;CTF+Player;Bug+Bounty+Hunter;OSCP+In+Progress;NPX+Framework+Developer" alt="Typing SVG" />
+</div>
 
 <h1 align="center">🛡️ NPX Framework</h1>
 <p align="center">
